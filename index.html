@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生日快乐 🎂</title>
+    <title>生日快乐 🎉</title>
     <style>
         * {
             margin: 0;
@@ -17,20 +17,33 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             overflow: hidden;
             flex-direction: column;
-            padding: 20px;
+            color: white;
+        }
+
+        /* 烟花动画容器 */
+        #fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
             padding: 50px 60px;
             border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
             max-width: 600px;
-            animation: fadeIn 1.2s ease;
+            animation: fadeIn 1.5s ease;
+            position: relative;
+            z-index: 2;
         }
 
         @keyframes fadeIn {
@@ -39,14 +52,14 @@
         }
 
         .title {
-            font-size: 42px;
-            color: #ff5e8f;
+            font-size: 48px;
             margin-bottom: 20px;
-            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         }
 
+        /* 替换为文字蛋糕 */
         .cake {
-            width: 100px;
+            font-size: 80px;
             margin: 20px 0;
             animation: bounce 1.5s infinite alternate;
         }
@@ -57,30 +70,47 @@
         }
 
         .wish {
-            font-size: 22px;
-            color: #555;
-            margin: 15px 0;
-            min-height: 30px;
+            font-size: 24px;
+            margin: 20px 0;
+            min-height: 36px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .tips {
             margin-top: 30px;
-            color: #888;
-            font-size: 14px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* 点击特效粒子 */
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
         }
     </style>
 </head>
 <body>
+    <!-- 烟花背景容器 -->
+    <div id="fireworks"></div>
+
     <div class="card">
         <h1 class="title">生日快乐 🎉</h1>
         
-        <!-- 蛋糕图标 -->
-        <img class="cake" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/128/1f382.png" alt="蛋糕">
+        <!-- 文字蛋糕图标 -->
+        <div class="cake">🎂</div>
         
-        <!-- 自动切换祝福语 -->
         <div id="wish" class="wish"></div>
 
-        <div class="tips">愿所有美好都如约而至 ✨</div>
+        <div class="tips">点击屏幕看看效果！✨</div>
     </div>
 
     <script>
@@ -101,10 +131,69 @@
             wishEl.textContent = wishes[index];
             index = (index + 1) % wishes.length;
         }
-
-        // 初始执行 + 每3秒换一句
+        
         changeWish();
         setInterval(changeWish, 3000);
+
+        // --------------- 烟花动画逻辑 ---------------
+        const fireworksContainer = document.getElementById('fireworks');
+
+        // 随机颜色
+        function getRandomColor() {
+            const colors = ['#ff0', '#f0f', '#0ff', '#ff3300', '#33ff33', '#ff33cc'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // 创建烟花粒子
+        function createFirework(x, y) {
+            const particleCount = 50; // 粒子数量
+            const color = getRandomColor();
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = color;
+                
+                // 随机方向
+                const angle = (Math.PI * 2 * Math.random());
+                const speed = Math.random() * 5 + 3;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                let time = 0;
+                const updatePosition = () => {
+                    time += 0.05;
+                    particle.style.left = (parseFloat(particle.style.left) + vx) + 'px';
+                    particle.style.top = (parseFloat(particle.style.top) + vy + time * 0.5) + 'px'; // 重力
+                    
+                    if (time < 1) {
+                        requestAnimationFrame(updatePosition);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                updatePosition();
+                fireworksContainer.appendChild(particle);
+            }
+        }
+
+        // 全屏随机自动烟花
+        function launchRandomFirework() {
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight / 2;
+            createFirework(x, y);
+        }
+        
+        // 点击屏幕触发烟花
+        document.addEventListener('click', (e) => {
+            createFirework(e.clientX, e.clientY);
+        });
+
+        // 每隔2秒自动放一次烟花
+        setInterval(launchRandomFirework, 2000);
+
     </script>
 </body>
 </html>
