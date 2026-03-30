@@ -1,203 +1,241 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>生日快乐 🎂</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>生日快乐 🎂</title>
 
-        body {
-            width: 100vw;
-            height: 100vh;
-            background: #e0f7ff;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", sans-serif;
+}
 
-        #fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
+body {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #e0f7ff, #ffffff);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        .card {
-            position: relative;
-            z-index: 2;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(10px);
-            padding: 50px 60px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            text-align: center;
-            max-width: 620px;
-            animation: fadeIn 1.4s ease;
-        }
+/* 烟花（最上层 + 不拦截点击） */
+#fireworks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    z-index: 999;
+    pointer-events: none;
+}
 
-        .title {
-            font-size: 50px;
-            color: #ff4444;
-            text-shadow: 0 0 12px #ffcc00;
-            margin-bottom: 20px;
-        }
+/* 卡片 */
+.card {
+    position: relative;
+    z-index: 1;
 
-        .cake {
-            font-size: 90px;
-            margin: 20px 0;
-            animation: bounce 1.6s infinite alternate;
-        }
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(12px);
+    padding: 50px 60px;
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.5);
+    text-align: center;
+    max-width: 620px;
 
-        @keyframes bounce {
-            from { transform: scale(1); }
-            to { transform: scale(1.12); }
-        }
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    animation: fadeIn 1.2s ease;
+}
 
-        .wish {
-            font-size: 26px;
-            color: #333;
-            min-height: 40px;
-            margin: 20px 0;
-        }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-        .tips {
-            color: #666;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-    </style>
+.title {
+    font-size: 50px;
+    color: #ff4444;
+    text-shadow: 0 0 12px #ffcc00;
+}
+
+.cake {
+    font-size: 90px;
+    margin: 20px 0;
+    animation: bounce 1.5s infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: scale(1); }
+    to { transform: scale(1.12); }
+}
+
+.wish {
+    font-size: 26px;
+    color: #333;
+    min-height: 40px;
+    margin-top: 20px;
+}
+
+.tips {
+    color: #666;
+    font-size: 14px;
+    margin-top: 15px;
+}
+</style>
 </head>
 
 <body>
+
 <canvas id="fireworks"></canvas>
 
 <div class="card">
     <h1 class="title">生日快乐 🎉</h1>
     <div class="cake">🎂</div>
     <div id="wish" class="wish"></div>
-    <div class="tips">点击任意位置绽放烟花 ✨</div>
+    <div class="tips">点击任意位置释放烟花 ✨</div>
 </div>
 
 <script>
-    // 祝福语
-    const wishes = [
-        "愿你岁岁平安，万事顺遂",
-        "愿你眼里有光，心中有梦",
-        "愿你被世界温柔以待",
-        "愿你每一天都开心快乐",
-        "新的一岁，闪闪发光！",
-        "平安喜乐，得偿所愿"
-    ];
-    let index = 0;
-    const wishEl = document.getElementById("wish");
-    function changeWish() {
-        wishEl.textContent = wishes[index];
-        index = (index + 1) % wishes.length;
-    }
-    changeWish();
-    setInterval(changeWish, 3000);
+// ===== 祝福语 =====
+const wishes = [
+    "愿你岁岁平安，万事顺遂",
+    "愿你眼里有光，心中有梦",
+    "愿你被世界温柔以待",
+    "愿你每一天都开心快乐",
+    "新的一岁，闪闪发光！",
+    "平安喜乐，得偿所愿"
+];
 
-    // 烟花
-    const canvas = document.getElementById("fireworks");
-    const ctx = canvas.getContext("2d");
+let index = 0;
+const wishEl = document.getElementById("wish");
+
+function changeWish() {
+    wishEl.textContent = wishes[index];
+    index = (index + 1) % wishes.length;
+}
+changeWish();
+setInterval(changeWish, 3000);
+
+
+// ===== Canvas 初始化 =====
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
-    class Firework {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.particles = [];
-            this.count = Math.random() * 60 + 50;
-            // 红 / 橙 / 金 为主
-            this.colors = [
-                "#ff3333", "#ff5500", "#ff9900", "#ffcc00",
-                "#ff2222", "#ff7700", "#ffee00"
-            ];
-            this.color = this.colors[Math.floor(Math.random() * this.colors.length)];
 
-            for (let i = 0; i < this.count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = Math.random() * 4 + 3;
-                this.particles.push({
-                    x: this.x,
-                    y: this.y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    life: 1,
-                    decay: Math.random() * 0.012 + 0.008
-                });
-            }
-        }
+// ===== 烟花类 =====
+class Firework {
+    constructor(x, y) {
+        this.particles = [];
+        this.count = Math.random() * 60 + 60;
 
-        update() {
-            ctx.globalCompositeOperation = "source-over";
-            this.particles.forEach((p, i) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.06;
-                p.life -= p.decay;
+        for (let i = 0; i < this.count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 4 + 3;
 
-                if (p.life > 0) {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.globalAlpha = p.life;
-                    ctx.fill();
-                } else {
-                    this.particles.splice(i, 1);
-                }
+            this.particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1,
+                decay: Math.random() * 0.015 + 0.008,
+                color: `hsl(${Math.random() * 60}, 100%, 60%)`
             });
-            ctx.globalAlpha = 1;
-        }
-
-        done() {
-            return this.particles.length === 0;
         }
     }
 
-    let fireworks = [];
+    update() {
+        ctx.globalCompositeOperation = "lighter";
 
-    function loop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        fireworks = fireworks.filter(f => !f.done());
-        fireworks.forEach(f => f.update());
-        requestAnimationFrame(loop);
+        this.particles.forEach((p, i) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.05;
+            p.life -= p.decay;
+
+            if (p.life <= 0) {
+                this.particles.splice(i, 1);
+                return;
+            }
+
+            ctx.globalAlpha = p.life;
+
+            // 拖尾
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x - p.vx * 2, p.y - p.vy * 2);
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 星芒
+            ctx.beginPath();
+            for (let j = 0; j < 5; j++) {
+                const angle = (Math.PI * 2 / 5) * j;
+                const r = 3;
+                ctx.lineTo(
+                    p.x + Math.cos(angle) * r,
+                    p.y + Math.sin(angle) * r
+                );
+            }
+            ctx.closePath();
+            ctx.fillStyle = p.color;
+            ctx.fill();
+        });
+
+        ctx.globalAlpha = 1;
     }
-    loop();
 
-    // 自动放烟花
-    setInterval(() => {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * (canvas.height / 1.6);
-        fireworks.push(new Firework(x, y));
-    }, 1500);
+    done() {
+        return this.particles.length === 0;
+    }
+}
 
-    // 点击烟花
-    document.addEventListener("click", e => {
-        fireworks.push(new Firework(e.clientX, e.clientY));
-    });
 
-    window.addEventListener("resize", () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
+// ===== 主循环（残影效果）=====
+let fireworks = [];
+
+function loop() {
+    // 半透明覆盖 → 残影
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.globalCompositeOperation = "lighter";
+
+    fireworks = fireworks.filter(f => !f.done());
+    fireworks.forEach(f => f.update());
+
+    requestAnimationFrame(loop);
+}
+loop();
+
+
+// ===== 自动烟花 =====
+setInterval(() => {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * (canvas.height / 1.5);
+    fireworks.push(new Firework(x, y));
+}, 1200);
+
+
+// ===== 点击烟花 =====
+document.addEventListener("click", e => {
+    fireworks.push(new Firework(e.clientX, e.clientY));
+});
 </script>
+
 </body>
 </html>
