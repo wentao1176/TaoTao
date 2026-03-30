@@ -1,13 +1,110 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8">
-        <title>我的网页-1</title>
-    </head>
-    <body>
-        <marquee bgcolor="yellow">
-            宣文韬最帅！
-        </marquee>
-        <input type="text">
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生日快乐 🎂</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            overflow: hidden;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+            padding: 50px 60px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            animation: fadeIn 1.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title {
+            font-size: 42px;
+            color: #ff5e8f;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .cake {
+            width: 100px;
+            margin: 20px 0;
+            animation: bounce 1.5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .wish {
+            font-size: 22px;
+            color: #555;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+
+        .tips {
+            margin-top: 30px;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 class="title">生日快乐 🎉</h1>
+        
+        <!-- 蛋糕图标 -->
+        <img class="cake" src="https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/128/1f382.png" alt="蛋糕">
+        
+        <!-- 自动切换祝福语 -->
+        <div id="wish" class="wish"></div>
+
+        <div class="tips">愿所有美好都如约而至 ✨</div>
+    </div>
+
+    <script>
+        // 祝福语列表
+        const wishes = [
+            "愿你岁岁平安，万事顺遂",
+            "愿你眼里有光，心中有梦",
+            "愿你被世界温柔以待",
+            "愿你每一天都开心快乐",
+            "新的一岁，更加闪闪发光！"
+        ];
+
+        let index = 0;
+        const wishEl = document.getElementById("wish");
+
+        // 自动切换文字
+        function changeWish() {
+            wishEl.textContent = wishes[index];
+            index = (index + 1) % wishes.length;
+        }
+
+        // 初始执行 + 每3秒换一句
+        changeWish();
+        setInterval(changeWish, 3000);
+    </script>
+</body>
 </html>
